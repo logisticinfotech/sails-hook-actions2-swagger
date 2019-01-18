@@ -1,0 +1,36 @@
+{
+    "name": "@logisticinfotech/sails-hook-actions2-swagger",
+    "version": "0.0.1",
+    "description": "sails hook for job-queue with kue",
+    "main": "index.js",
+    "scripts": {
+        "test": "npm test"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/logisticinfotech/sails-hook-actions2-swagger.git"
+    },
+    "keywords": [
+        "sails v1",
+        "hook",
+        "actions2-swagger",
+        "swagger",
+        "swagger-ui",
+        "logistic infotech"
+    ],
+    "author": "Nirav Adatiya <niravjadatiya@gmail.com>",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/logisticinfotech/sails-hook-actions2-swagger/issues"
+    },
+    "dependencies": {
+    },
+    "devDependencies": {
+        "sails": "^1.1.0"
+    },
+    "sails": {
+        "isHook": true,
+        "hookName": "sails-hook-actions2-swagger"
+    },
+    "homepage": "https://github.com/logisticinfotech/sails-hook-actions2-swagger#readme"
+}
