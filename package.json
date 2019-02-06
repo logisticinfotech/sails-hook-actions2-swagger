@@ -1,6 +1,6 @@
 {
     "name": "@logisticinfotech/sails-hook-actions2-swagger",
-    "version": "0.0.1",
+    "version": "0.0.3",
     "description": "sails hook for job-queue with kue",
     "main": "index.js",
     "scripts": {
@@ -16,7 +16,9 @@
         "actions2-swagger",
         "swagger",
         "swagger-ui",
-        "logistic infotech"
+        "logistic infotech",
+        "action2-swagger",
+        "sails-hook"
     ],
     "author": "Nirav Adatiya <niravjadatiya@gmail.com>",
     "license": "MIT",
