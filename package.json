@@ -1,6 +1,6 @@
 {
     "name": "@logisticinfotech/sails-hook-actions2-swagger",
-    "version": "0.0.3",
+    "version": "0.0.5",
     "description": "sails hook for job-queue with kue",
     "main": "index.js",
     "scripts": {
