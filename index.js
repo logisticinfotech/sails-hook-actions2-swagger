@@ -185,10 +185,11 @@ module.exports = function swaggerGenerator(sails) {
     pathInputs = Object.assign({}, ...pathInputs);
     params = generatePathData(pathInputs, 'path');
     if (objUrl.methodType == "post" || objUrl.methodType == "put") {
-      obj = generateBodyData(objUrl.actionInputs);
-      params.push(obj);
+        obj = generateBodyData(objUrl.actionInputs);
+        params.push(obj);
     } else {
-      params = generatePathData(objUrl.actionInputs, 'query');
+        let tempObj = generatePathData(objUrl.actionInputs, 'query')
+        params.push(tempObj);
     }
 
     let path = {
