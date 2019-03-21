@@ -47,8 +47,8 @@ module.exports = function swaggerGenerator(sails) {
           routeUrl = arrRouteSplit[0]
         }
 
-        // console.log('routeList[key] : ', routeList[key]);
-        // console.log('methodType : ' + methodType + ' routeUrl : ' + routeUrl);
+        console.log('routeList[key] : ', routeList[key]);
+        console.log('methodType : ' + methodType + ' routeUrl : ' + routeUrl);
         // if route has path params
         let pathInputs = [];
         let objUrl = {};
@@ -109,6 +109,8 @@ module.exports = function swaggerGenerator(sails) {
         } else if (routeList[key].action) {
           let filePathToRead = controllerPath + "/" + routeList[key].action;
           let actionInputs = getInputs(filePathToRead);
+          console.log('filePathToRead : ', filePathToRead);
+          console.log('actionInputs : ', actionInputs);
 
           objUrl.methodType = methodType;
           objUrl.actionInputs = actionInputs;
@@ -416,8 +418,9 @@ module.exports = function swaggerGenerator(sails) {
     let inputs;
     try {
       let file = require(path);
-      inputs = file.inputs;
+      inputs = _.clone(file.inputs, true);
     } catch (error) {
+      console.error('getInputs : ', error);
       inputs = "";
     }
     return inputs;
