@@ -18,10 +18,12 @@ module.exports = function swaggerGenerator(sails) {
 
   function init() {
     // getting global object if defined
+    // console.log('defined In config: ', sails.config.swaggerConfig);
     if (sails.config.swaggerConfig) {
-      swaggerConfig = sails.config.swaggerConfig;
+      _.merge(swaggerConfig, sails.config.swaggerConfig);
     }
-
+    // console.log('final swagger config: ', swaggerConfig);
+    // return;
     if (swaggerConfig.disable) {
       sails.log.info('Swagger hook disabled, please enable it from sails.config.swaggerConfig.disable')
       return;
@@ -32,11 +34,21 @@ module.exports = function swaggerGenerator(sails) {
     let routeList = sails.config.routes;
     let controllerPath = sails.config.paths.controllers;
 
+    // console.log('routeList : ', routeList);
     for (const key in routeList) {
       if (routeList.hasOwnProperty(key)) {
-        let methodType = key.split(/ (.+)/)[0].toLowerCase();
-        let routeUrl = key.split(/ (.+)/)[1];
+        let arrRouteSplit = key.split(/ (.+)/);
 
+        let methodType = arrRouteSplit[0].toLowerCase();
+        let routeUrl = arrRouteSplit[1];
+
+        if(arrRouteSplit.length == 1) {
+          methodType = "get";
+          routeUrl = arrRouteSplit[0]
+        }
+
+        // console.log('routeList[key] : ', routeList[key]);
+        // console.log('methodType : ' + methodType + ' routeUrl : ' + routeUrl);
         // if route has path params
         let pathInputs = [];
         let objUrl = {};
@@ -45,59 +57,74 @@ module.exports = function swaggerGenerator(sails) {
           routeUrl = objUrl.routeUrl;
           pathInputs = objUrl.pathInputs;
         }
-        //
+
+        let tempTag = routeUrl;
+        // console.log('view tempTag 1 : ', tempTag);
+        if (swaggerConfig.defaults.pathsToIgnore.length) {
+          if (swaggerConfig.defaults.pathsToIgnore.indexOf(tempTag)) {
+            for (let i = 0; i < swaggerConfig.defaults.pathsToIgnore.length; i++) {
+              tempTag = tempTag.replace(swaggerConfig.defaults.pathsToIgnore[i], '');
+              // console.log(' =========>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> GONE');
+            }
+          }
+        }
+        tempTag = tempTag.replace(/\/\/+/g, '/');
+        // console.log('view tempTag 2 : ', tempTag);
+
+        let tags = tempTag.split("/");
+        // console.log(tags);
+        //   TODO:
+        let tag = capitalizeString(tags[1]);
+        if (!tag) {
+          tag = "/";
+        }
+
+        let summary = routeList[key].description ? routeList[key].description : '';
+
+        if(!swagger.paths[routeUrl]) {
+          swagger.paths[routeUrl] = {};
+        }
 
         if (routeList[key].controller && routeList[key].swagger) {
           //   console.log(routeList[key].swagger, routeUrl, methodType);
-          let tempObj = {
-            [methodType]: routeList[key].swagger
-          }
-          swagger.paths[routeUrl] = tempObj;
+          swagger.paths[routeUrl][methodType] = routeList[key].swagger;
 
-        } else if (!routeList[key].controller && routeList[key].action) {
+        } else if (routeList[key].view) {
+
+          objUrl.methodType = methodType;
+          objUrl.actionInputs = [];
+          objUrl.tags = [tag];
+          objUrl.summary = summary;
+          objUrl.consumes = ["application/json"];
+          objUrl.produces = ["application/json"];
+          objUrl.responses = swaggerConfig.defaults.responses;
+          objUrl.security = swaggerConfig.defaults.security;
+
+          if (routeList[key].swagger) {
+            objUrl = setDataFromRouteObj(routeList[key].swagger, objUrl);
+          }
+
+          swagger.paths[routeUrl][methodType] = generatePath(objUrl);
+
+        } else if (routeList[key].action) {
           let filePathToRead = controllerPath + "/" + routeList[key].action;
           let actionInputs = getInputs(filePathToRead);
 
+          objUrl.methodType = methodType;
+          objUrl.actionInputs = actionInputs;
+          objUrl.tags = [tag];
+          objUrl.summary = summary;
+          objUrl.consumes = ["application/json"];
+          objUrl.produces = ["application/json"];
+          objUrl.responses = swaggerConfig.defaults.responses;
+          objUrl.security = swaggerConfig.defaults.security;
 
-          let tempTag = routeList[key].action;
-          if (swaggerConfig.defaults.pathsToIgnore && swaggerConfig.defaults.pathsToIgnore.length > 0) {
-            if (tempTag.includes(swaggerConfig.defaults.pathsToIgnore)) {
-              for (let i = 0; i < swaggerConfig.defaults.pathsToIgnore.length; i++) {
-                tempTag = tempTag.replace(swaggerConfig.defaults.pathsToIgnore[i], '');
-                // console.log(' =========>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> GONE');
-              }
-            }
+          if (routeList[key].swagger) {
+            objUrl = setDataFromRouteObj(routeList[key].swagger, objUrl);
           }
 
-          //   let tags = routeList[key].action.split("/");
+          swagger.paths[routeUrl][methodType] = generatePath(objUrl);
 
-          let tags = tempTag.split("/");
-          //   console.log(tags);
-          //   TODO:
-          let summary = routeList[key].description ? routeList[key].description : '';
-          //
-
-          if (methodType && routeUrl && tags && tags.length > 0) {
-            let tag = capitalizeString(tags[0]);
-
-            if (!tags[1]) {
-              tag = "/";
-            }
-
-            objUrl.methodType = methodType;
-            objUrl.actionInputs = actionInputs;
-            objUrl.tag = tag;
-            objUrl.summary = summary;
-            objUrl.consumes = ["application/json"];
-            objUrl.produces = ["application/json"];
-            objUrl.responses = swaggerConfig.defaults.responses;
-            objUrl.security = swaggerConfig.defaults.security;
-
-            if (routeList[key].swagger) {
-              objUrl = setDataFromRouteObj(routeList[key].swagger, objUrl);
-            }
-            swagger.paths[routeUrl] = generatePath(objUrl);
-          }
         }
       }
     }
@@ -106,8 +133,8 @@ module.exports = function swaggerGenerator(sails) {
   }
 
   function setDataFromRouteObj(urlData, objUrl) {
-    if (urlData.tag) {
-      objUrl.tag = urlData.tag;
+    if (urlData.tags) {
+      objUrl.tags = urlData.tags;
     }
     if (urlData.summary) {
       objUrl.summary = urlData.summary;
@@ -193,18 +220,16 @@ module.exports = function swaggerGenerator(sails) {
     }
 
     let path = {
-      [objUrl.methodType]: {
-        tags: [objUrl.tag],
-        summary: objUrl.summary,
-        consumes: objUrl.consumes,
-        produces: objUrl.produces,
-        responses: objUrl.responses,
-        security: objUrl.security
-      }
+      tags: objUrl.tags,
+      summary: objUrl.summary,
+      consumes: objUrl.consumes,
+      produces: objUrl.produces,
+      responses: objUrl.responses,
+      security: objUrl.security
     };
 
     if (params.length > 0 && params[0] != null) {
-      path[objUrl.methodType].parameters = params;
+      path.parameters = params;
     }
     return path;
   }
