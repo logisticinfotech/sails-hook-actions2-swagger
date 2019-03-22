@@ -215,8 +215,10 @@ module.exports = function swaggerGenerator(sails) {
         obj = generateBodyData(objUrl.actionInputs);
         params.push(obj);
     } else {
-        let tempObj = generatePathData(objUrl.actionInputs, 'query')
-        params.push(tempObj);
+        let tempObj = JSON.parse(JSON.stringify(generatePathData(objUrl.actionInputs, 'query')));
+        for (let i = 0; i < tempObj.length; i++) {
+            params.push(tempObj[i]);
+        }
     }
 
     let path = {
