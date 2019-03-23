@@ -1,5 +1,8 @@
 ### sails-hook-actions2-swagger
 
+### Here is full article with step by step guidance [article](https://www.logisticinfotech.com/blog/sails-hook-actions2-swagger-generator).
+
+
 A sails hook that generates swagger json with inputs of actions2 and provides swagger-ui.
 We have recently added support for controllers that doesn't have actions input.
 
