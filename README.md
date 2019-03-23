@@ -32,7 +32,7 @@ You can update
 - version of api
   and almost every thing from here.
 
-### For Usage and more details see my [blog](https://logisticinfotech.com).
+### For Usage and more details see my [blog](https://www.logisticinfotech.com/blog/sails-hook-actions2-swagger-generator).
 
 ### TODO
 - File Upload
