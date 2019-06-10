@@ -1,7 +1,7 @@
 {
     "name": "@logisticinfotech/sails-hook-actions2-swagger",
-    "version": "0.0.7",
-    "description": "sails hook for job-queue with kue",
+    "version": "0.0.8",
+    "description": "sails hook for generating swagger.json and its ui",
     "main": "index.js",
     "scripts": {
         "test": "npm test"
