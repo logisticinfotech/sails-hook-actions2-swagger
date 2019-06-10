@@ -110,6 +110,14 @@ module.exports = function swaggerGenerator(sails) {
           let filePathToRead = controllerPath + "/" + routeList[key].action;
           let actionInputs = getInputs(filePathToRead);
 
+          for (const keyai in actionInputs) {
+            if (actionInputs.hasOwnProperty(keyai)) {
+              let objAI = actionInputs[keyai];
+              if(objAI.type == "json") {
+                delete objAI.type;
+              }
+            }
+          }
           objUrl.methodType = methodType;
           objUrl.actionInputs = actionInputs;
           objUrl.tags = [tag];
@@ -369,9 +377,9 @@ module.exports = function swaggerGenerator(sails) {
         }
         objModel.attributes[key] = {};
         if (object[key].type) {
-          if (object[key].type == 'json') {
-            object[key].type = 'object'
-          }
+          // if (object[key].type == 'json') {
+          //   object[key].type = 'object'
+          // }
           objModel.attributes[key].type = object[key].type;
         }
         if (object[key].description) {
