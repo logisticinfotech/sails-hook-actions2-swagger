@@ -1,6 +1,6 @@
 {
     "name": "@logisticinfotech/sails-hook-actions2-swagger",
-    "version": "0.0.8",
+    "version": "0.0.9",
     "description": "sails hook for generating swagger.json and its ui",
     "main": "index.js",
     "scripts": {
@@ -34,5 +34,5 @@
         "isHook": true,
         "hookName": "sails-hook-actions2-swagger"
     },
-    "homepage": "https://github.com/logisticinfotech/sails-hook-actions2-swagger#readme"
+    "homepage": "https://www.logisticinfotech.com/blog/sails-hook-actions2-swagger-generator/"
 }

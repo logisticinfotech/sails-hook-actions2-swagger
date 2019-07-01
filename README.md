@@ -16,7 +16,7 @@ After installation just `sails lift` and browse swagger doc at
 http://localhost:1337/swagger (assuming that you are using localhost and default port)
 
 #### For [nodemon](https://nodemon.io/) users
-use `nodemon --ignore 'assets/swagger/*'` as we are generating swagger files in that folder we need to ignore that changes.
+use `nodemon --ignore 'swagger.json'` as we are generating swagger files in that folder we need to ignore that changes.
 
 ### Change / Customize Default Options
 

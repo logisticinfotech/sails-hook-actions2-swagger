@@ -1,4 +1,5 @@
 let swaggerConfig = require('./swagger');
+var fs = require('fs');
 module.exports = function swaggerGenerator(sails) {
   return {
     initialize: async function () {
@@ -10,9 +11,34 @@ module.exports = function swaggerGenerator(sails) {
       if (sails.hooks.pubsub) {
         eventsToWaitFor.push("hook:pubsub:loaded");
       }
-      sails.after(eventsToWaitFor, function () {
+      sails.after(eventsToWaitFor, () => {
         init();
+        this.registerActions();
       });
+    },
+
+    registerActions: function() {
+
+      // Register an action as `myhook/greet` that an app can bind to any route they like.
+      var html = fs.readFileSync(__dirname + '/index.html', 'utf-8');
+      sails.registerAction(function greet(req, res) {
+        return res.status(200).send(html);
+      }, 'swagger');
+
+      sails.config.routes['GET /swagger'] = { action: 'swagger' };
+
+
+      sails.registerAction(function swaggerjson(req, res) {
+        let jsonFullPath = sails.config.appPath + '/' + swaggerConfig.pathToGenerateFile + swaggerConfig.fileName;
+        var json = fs.readFileSync(jsonFullPath, 'utf-8');
+        // console.log("jsonFullPath : ", jsonFullPath);
+        // console.log("json : ", json);
+        return res.status(200).send(json);
+      }, 'swaggerjson');
+
+      sails.config.routes['GET /swagger.json'] = { action: 'swaggerjson' };
+      // return cb();
+
     }
   };
 
@@ -315,10 +341,9 @@ module.exports = function swaggerGenerator(sails) {
   }
 
   function generateFile(data) {
-    let fs = require("fs");
 
     // generating folder if not exists
-    swaggerConfig.pathToGenerateFile = 'assets/swagger/';
+    swaggerConfig.pathToGenerateFile = '';
     swaggerConfig.fileName = 'swagger.json';
     let folders = swaggerConfig.pathToGenerateFile.split('/');
     let tempPath = '';
@@ -350,18 +375,18 @@ module.exports = function swaggerGenerator(sails) {
       console.log('Cheers 🍺  Swagger doc generated, Access it with http://localhost:' + sails.config.port + '/swagger ');
     });
 
-    let htmlFilePath = sails.config.appPath + '/' + swaggerConfig.pathToGenerateFile + 'index.html';
+    // let htmlFilePath = sails.config.appPath + '/' + swaggerConfig.pathToGenerateFile + 'index.html';
 
-    // copying html file
-    fs.copyFile(__dirname + '/index.html', htmlFilePath, true, (err) => {
-      if (err) {
-        if (err.code != 'EEXIST') {
-          return console.log(err);
-        }
-        return;
-      };
-      //   console.log('htmlFilePath');
-    });
+    // // copying html file
+    // fs.copyFile(__dirname + '/index.html', htmlFilePath, true, (err) => {
+    //   if (err) {
+    //     if (err.code != 'EEXIST') {
+    //       return console.log(err);
+    //     }
+    //     return;
+    //   };
+    //   //   console.log('htmlFilePath');
+    // });
   }
 
   function addOnlySpecificKeys(object) {
