@@ -35,6 +35,46 @@ You can update
 - version of api
   and almost every thing from here.
 
+### How to use multipart with SailsJS Actions2?
+
+First, you have to add a swagger object next to the `action`.
+
+```json
+    'POST /api/v1/company/upload': { action: 'company/mobile/upload', swagger: {security: [ {"ApiKey": [] } ], consumes: ["multipart/form-data"] }},   
+```
+In the example above, we redefine the security and set the format of the passed data to `multipart/form-data`.
+This is the part that's added to your `config/swagger.js`.
+```json
+    securityDefinitions: {
+        "Authorization": {
+            "type": "apiKey",
+            "description": "user JWT Auth Token",
+            "name": "Authorization",
+            "in": "header",
+            "flow": "password"
+        },
+        "ApiKey": {
+            "type": "apiKey",
+            "description": "uses api-key",
+            "name":"api-key",
+            "in": "query",
+            "flow": "password"
+        }
+    }
+```
+
+When the `swagger.json` is generated there will be a list of arguments that can be used with `multipart/form-data`. To add a `file` type, you can define the following action input in controller.
+
+```json
+    document: {
+      description: 'The file that should be uploaded.',
+      type: 'ref',
+      required: true,
+      swaggerType: 'file'
+    }   
+```
+> Note: You have to add `files: ["document"]` to the controller at root level (next to `inputs`). For more information check [here](https://github.com/sailshq/machine-as-action#customizing-the-response) 
+
 ### For Usage and more details see my [blog](https://www.logisticinfotech.com/blog/sails-hook-actions2-swagger-generator).
 
 ### TODO

@@ -247,7 +247,18 @@ module.exports = function swaggerGenerator(sails) {
     params = generatePathData(pathInputs, 'path');
     if (objUrl.methodType == "post" || objUrl.methodType == "put") {
         obj = generateBodyData(objUrl.actionInputs);
-        params.push(obj);
+
+        if(objUrl.consumes.indexOf("multipart/form-data") > -1) {
+          obj = generateBodyData_MultipartForm(objUrl.actionInputs);
+          //append
+          for (let index = 0; index < obj.length; index++) {
+            const element = obj[index];
+            params.push(element);
+          }
+        } else {
+          //keep the old behavior
+          params.push(obj);
+        }   
     } else {
         let tempObj = JSON.parse(JSON.stringify(generatePathData(objUrl.actionInputs, 'query')));
         for (let i = 0; i < tempObj.length; i++) {
@@ -317,6 +328,33 @@ module.exports = function swaggerGenerator(sails) {
       }
     }
     return obj;
+  }
+
+  function generateBodyData_MultipartForm(actionInputs) {
+    let arr = [];
+
+    for (const key in actionInputs) {
+      if (actionInputs.hasOwnProperty(key)) {
+        let inputDescriptor = actionInputs[key];
+        let obj = {"in": "formData", name: key};
+
+        obj.type = inputDescriptor.type === 'ref' ? 'array' : actionInputs[key].type;
+        if(inputDescriptor.swaggerType) {
+          obj.type = inputDescriptor.swaggerType
+        }
+
+        if (inputDescriptor.description) {
+          obj.description = inputDescriptor.description;
+        }
+
+        if (inputDescriptor.required) {
+          obj.required = inputDescriptor.required;
+        }
+
+        arr.push(obj);
+      }
+    }
+    return arr;
   }
 
   function generateDefinitions() {
