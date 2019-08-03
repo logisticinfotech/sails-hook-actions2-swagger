@@ -201,23 +201,13 @@ module.exports = function swaggerGenerator(sails) {
       pathInputs: [],
       originalUrl: routeUrl
     }
-    for (i = 0; i < urlArray.length; i++) {
-      if (i == 0) {
-        objUrl.routeUrl = urlArray[i];
-      } else {
-        objUrl.pathInputs.push(urlArray[i].split('/')[0]);
-        if (i == urlArray.length - 1) {
-          var paths = (urlArray[i]).split('/');
-          if (paths.length > 1) {
-            delete paths[0];
-            objUrl.routeUrl = objUrl.routeUrl + '{' + (urlArray[i]).split('/')[0] + '}' + paths.join('/');
-          } else {
-            objUrl.routeUrl = objUrl.routeUrl + '{' + (urlArray[i]).split('/')[0] + '}';
-          }
-        } else {
-          objUrl.routeUrl = objUrl.routeUrl + '{' + (urlArray[i]).split('/')[0] + '}' + '/';
-        }
-      }
+    objUrl.routeUrl = urlArray[0];
+    for (i = 1; i < urlArray.length; i++) {
+      let pathSection = urlArray[i];
+      let paramName = pathSection.split('/')[0];
+      let tail = pathSection.substring(paramName.length);
+      objUrl.pathInputs.push(paramName);
+      objUrl.routeUrl = objUrl.routeUrl + '{' + paramName + '}' + tail;
     }
     return objUrl;
   }
@@ -247,7 +237,18 @@ module.exports = function swaggerGenerator(sails) {
     params = generatePathData(pathInputs, 'path');
     if (objUrl.methodType == "post" || objUrl.methodType == "put") {
         obj = generateBodyData(objUrl.actionInputs);
-        params.push(obj);
+
+        if(objUrl.consumes.indexOf("multipart/form-data") > -1) {
+          obj = generateBodyData_MultipartForm(objUrl.actionInputs);
+          //append
+          for (let index = 0; index < obj.length; index++) {
+            const element = obj[index];
+            params.push(element);
+          }
+        } else {
+          //keep the old behavior
+          params.push(obj);
+        }   
     } else {
         let tempObj = JSON.parse(JSON.stringify(generatePathData(objUrl.actionInputs, 'query')));
         for (let i = 0; i < tempObj.length; i++) {
@@ -317,6 +318,33 @@ module.exports = function swaggerGenerator(sails) {
       }
     }
     return obj;
+  }
+
+  function generateBodyData_MultipartForm(actionInputs) {
+    let arr = [];
+
+    for (const key in actionInputs) {
+      if (actionInputs.hasOwnProperty(key)) {
+        let inputDescriptor = actionInputs[key];
+        let obj = {"in": "formData", name: key};
+
+        obj.type = inputDescriptor.type === 'ref' ? 'array' : actionInputs[key].type;
+        if(inputDescriptor.swaggerType) {
+          obj.type = inputDescriptor.swaggerType
+        }
+
+        if (inputDescriptor.description) {
+          obj.description = inputDescriptor.description;
+        }
+
+        if (inputDescriptor.required) {
+          obj.required = inputDescriptor.required;
+        }
+
+        arr.push(obj);
+      }
+    }
+    return arr;
   }
 
   function generateDefinitions() {
