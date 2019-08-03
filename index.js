@@ -201,23 +201,13 @@ module.exports = function swaggerGenerator(sails) {
       pathInputs: [],
       originalUrl: routeUrl
     }
-    for (i = 0; i < urlArray.length; i++) {
-      if (i == 0) {
-        objUrl.routeUrl = urlArray[i];
-      } else {
-        objUrl.pathInputs.push(urlArray[i].split('/')[0]);
-        if (i == urlArray.length - 1) {
-          var paths = (urlArray[i]).split('/');
-          if (paths.length > 1) {
-            delete paths[0];
-            objUrl.routeUrl = objUrl.routeUrl + '{' + (urlArray[i]).split('/')[0] + '}' + paths.join('/');
-          } else {
-            objUrl.routeUrl = objUrl.routeUrl + '{' + (urlArray[i]).split('/')[0] + '}';
-          }
-        } else {
-          objUrl.routeUrl = objUrl.routeUrl + '{' + (urlArray[i]).split('/')[0] + '}' + '/';
-        }
-      }
+    objUrl.routeUrl = urlArray[0];
+    for (i = 1; i < urlArray.length; i++) {
+      let pathSection = urlArray[i];
+      let paramName = pathSection.split('/')[0];
+      let tail = pathSection.substring(paramName.length);
+      objUrl.pathInputs.push(paramName);
+      objUrl.routeUrl = objUrl.routeUrl + '{' + paramName + '}' + tail;
     }
     return objUrl;
   }
